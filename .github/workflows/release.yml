@@ -47,13 +47,25 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: npx tauri build --target ${{ matrix.target }} --bundles msi
 
+      - name: Lister les artefacts produits
+        run: ls -laR src-tauri/target/*/release/bundle || true
+
       - name: Publier les artefacts dans la release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ github.ref_name }}
-          fail_on_unmatched_files: false
-          files: |
-            carnet-de-bord.html
-            src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg
-            src-tauri/target/${{ matrix.target }}/release/bundle/macos/*.app.zip
-            src-tauri/target/${{ matrix.target }}/release/bundle/msi/*.msi
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          TAG="${GITHUB_REF_NAME}"
+          gh release create "$TAG" carnet-de-bord.html --title "Carnet de bord ${TAG}" --notes "Build ${TAG} — dmg macOS, msi Windows, et carnet-de-bord.html (fichier unique navigateur)." 2>/dev/null || gh release upload "$TAG" carnet-de-bord.html --clobber
+          shopt -s nullglob
+          for f in src-tauri/target/*/release/bundle/dmg/*.dmg; do
+            echo "upload: $f"; gh release upload "$TAG" "$f" --clobber
+          done
+          for f in src-tauri/target/*/release/bundle/msi/*.msi; do
+            echo "upload: $f"; gh release upload "$TAG" "$f" --clobber
+          done
+          for app in src-tauri/target/*/release/bundle/macos/*.app; do
+            zip -qr "${app}.zip" "$app"
+            echo "upload: ${app}.zip"; gh release upload "$TAG" "${app}.zip" --clobber
+          done
+          gh release view "$TAG" --json assets --jq '.assets[].name'
