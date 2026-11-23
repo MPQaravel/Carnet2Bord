@@ -48,9 +48,11 @@ jobs:
         run: npx tauri build --target ${{ matrix.target }} --bundles msi
 
       - name: Lister les artefacts produits
+        shell: bash
         run: ls -laR src-tauri/target/*/release/bundle || true
 
       - name: Publier les artefacts dans la release
+        shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
