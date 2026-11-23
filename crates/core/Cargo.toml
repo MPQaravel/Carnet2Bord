@@ -1,0 +1,22 @@
+[package]
+name = "logbook-core"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+description = "Noyau métier du carnet de bord numérique de navigation (météo, géo, stockage, export)"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+rusqlite = { version = "0.32", features = ["bundled", "chrono"] }
+chrono = { version = "0.4", features = ["serde"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+thiserror = "2"
+uuid = { version = "1", features = ["v4"] }
+base64 = "0.22"
+regex = "1"
+async-trait = "0.1"
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
