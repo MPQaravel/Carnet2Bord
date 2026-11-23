@@ -422,8 +422,36 @@ class BrowserBackend implements Backend {
     persistDb(db);
     return db.logs.length;
   }
-  async transcribeAudio(_bytes: Uint8Array, _mime: string): Promise<string> {
-    throw new Error("Transcription : configurer le mode Mistral dans les réglages (disponible dans l'app Tauri, ou via clé API).");
+  async transcribeAudio(bytes: Uint8Array, mime: string): Promise<string> {
+    const s = await this.getSettings();
+    if (s.transcription_mode === "none") throw new Error("Transcription désactivée dans les réglages");
+    if (s.transcription_mode === "local") throw new Error("Le mode Whisper local n'est disponible que dans l'application Tauri");
+    if (!s.mistral_api_key.trim()) throw new Error("Clé API Mistral manquante — la renseigner dans ⚙️ Réglages → Dictée vocale");
+    const base = (s.mistral_base_url.trim() || "https://api.mistral.ai/v1").replace(/\/+$/, "");
+    const ext = mime.includes("ogg") ? "ogg" : mime.includes("mp4") ? "m4a" : "webm";
+    const form = new FormData();
+    form.append("model", s.mistral_model.trim() || "whisper-large-v3");
+    form.append("language", s.dictation_language.trim() || "fr");
+    form.append("response_format", "text");
+    form.append("file", new File([bytes as BlobPart], `audio.${ext}`, { type: mime }));
+    let r: Response;
+    try {
+      r = await fetch(`${base}/audio/transcriptions`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${s.mistral_api_key.trim()}` },
+        body: form,
+      });
+    } catch {
+      throw new OfflineError();
+    }
+    if (!r.ok) throw new Error(`API Mistral : HTTP ${r.status}`);
+    const t = (await r.text()).trim();
+    try {
+      const j = JSON.parse(t);
+      return typeof j.text === "string" ? j.text : t;
+    } catch {
+      return t;
+    }
   }
 }
 

@@ -8,7 +8,17 @@ Application de bureau (macOS / Windows) pour tenir un **journal de bord de voile
 - **Fonctionne hors ligne** de bout en bout (saisie manuelle, file d'attente météo, Whisper local possible).
 - **Stack** : Tauri 2 (Rust) + React/TypeScript/Vite, noyau métier pur `logbook-core` partagé (réutilisable mobile).
 
-## Démarrage rapide
+## Téléchargement direct (sans rien installer)
+
+- **Fichier unique** [`carnet-de-bord.html`](carnet-de-bord.html) (dans ce dépôt, ou dans les *Releases*) :
+  téléchargez-le, double-cliquez → l'appli s'ouvre dans votre navigateur. Stockage local (navigateur),
+  météo Open-Meteo en ligne, dictée via clé Mistral (⚙️ Réglages). Sauvegarde possible en JSON (⚙️ → Exporter).
+- **Application macOS (.dmg) / Windows (.msi)** : publiée automatiquement dans les
+  [Releases GitHub](https://github.com/MPQaravel/Carnet2Bord/releases) à chaque tag `v*.*.*`
+  (build CI sur machines macOS/Windows — voir `.github/workflows/release.yml`).
+  Sur macOS, au premier lancement : clic droit sur le dmg/app → « Ouvrir » (app non signée).
+
+## Démarrage rapide (depuis les sources)
 
 ```bash
 # 1. dépendances front
