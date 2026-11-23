@@ -1,4 +1,4 @@
-use chrono::{DateTime, Datelike, Local, NaiveDateTime, Timelike};
+use chrono::{Local, NaiveDateTime};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -163,12 +163,7 @@ pub fn new_id() -> String {
     uuid::Uuid::new_v4().to_string()
 }
 
-/// Stardate façon TNG (option d'affichage paramétrable) :
-/// (année − 2323) × 1000 + (jour de l'année − 1 + fraction de journée) / 365,25 × 1000.
-pub fn stardate(dt: &DateTime<Local>) -> String {
-    let year = dt.year() as f64;
-    let day_of_year = dt.ordinal() as f64;
-    let hour = dt.hour() as f64 + dt.minute() as f64 / 60.0 + dt.second() as f64 / 3600.0;
-    let stardate = (year - 2323.0) * 1000.0 + ((day_of_year - 1.0) + hour / 24.0) / 365.25 * 1000.0;
-    format!("{:.2}", stardate)
+/// Numéro de log : « LOG AAAAMMJJ HHMM » à partir de la date/heure du log.
+pub fn log_number(dt: &NaiveDateTime) -> String {
+    format!("LOG {}", dt.format("%Y%m%d %H%M"))
 }

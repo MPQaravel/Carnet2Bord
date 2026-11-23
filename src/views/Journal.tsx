@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Backend, summarizeNavigations } from "../lib/backend";
 import { Log, LogFilter, Navigation, Photo, Settings, Weather } from "../lib/types";
 import {
-  beaufortLabel, cardinal, fmtBytes, fmtDate, fmtDateTime, fmtDuration, fmtNm, fmtTime, msToKnots, stardate, wmoInfo,
+  beaufortLabel, cardinal, fmtBytes, fmtDate, fmtDateTime, fmtDuration, fmtNm, fmtTime, logNumber, msToKnots, wmoInfo,
 } from "../lib/format";
 import { AirIcon, SeaIcon, Tag, WmoIcon, WindIcon } from "../components/bits";
 
@@ -74,7 +74,6 @@ function LogCard({ backend, log, settings, onEdit, onDelete, onToast }: {
     })();
   }, [backend, log.id]);
 
-  const d = new Date(log.log_datetime.replace(" ", "T"));
   const anyEdited = log.overrides.length > 0;
 
   return (
@@ -82,7 +81,7 @@ function LogCard({ backend, log, settings, onEdit, onDelete, onToast }: {
       <div className="log-date">
         <div className="d">{fmtDate(log.log_datetime)}</div>
         <div className="t">{fmtTime(log.log_datetime)}</div>
-        {settings.stardate === "1" && <div className="sd">stardate {stardate(d)}</div>}
+        {settings.stardate === "1" && <div className="sd">{log.stardate ?? logNumber(log.log_datetime)}</div>}
       </div>
       <div className="log-main">
         <div className="log-title">

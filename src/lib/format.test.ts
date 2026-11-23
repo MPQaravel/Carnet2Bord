@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   beaufortFromMs, beaufortLabel, cardinal, formatDm, formatDms, formatPosition,
-  haversineNm, parsePosition, seaState, stardate, wmoInfo,
+  haversineNm, logNumber, parsePosition, seaState, wmoInfo,
 } from "./format";
 
 describe("parsePosition", () => {
@@ -68,8 +68,8 @@ describe("beaufort / cardinal / haversine / seaState / wmo / stardate", () => {
     expect(wmoInfo(0).label).toBe("Ciel dégagé");
     expect(wmoInfo(95).icon).toBe("storm");
   });
-  it("stardate", () => {
-    // 01/01/2026 00:00 -> (2026-2323)*1000 = -297000.00
-    expect(stardate(new Date(2026, 0, 1, 0, 0, 0))).toBe("-297000.00");
+  it("logNumber", () => {
+    expect(logNumber("2026-06-01T10:05:00")).toBe("LOG 20260601 1005");
+    expect(logNumber("2026-11-23T14:32:09")).toBe("LOG 20261123 1432");
   });
 });

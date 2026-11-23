@@ -98,11 +98,12 @@ export function LogSession({ backend, settings, logId, onSaved, onCancel, onErro
         setOffline(true);
         return null;
       }
-      throw e;
+      onError(`Météo indisponible : ${e instanceof Error ? e.message : e}`);
+      return null;
     } finally {
       setRefreshing(false);
     }
-  }, [backend]);
+  }, [backend, onError]);
 
   // Initialisation
   useEffect(() => {
@@ -299,6 +300,7 @@ export function LogSession({ backend, settings, logId, onSaved, onCancel, onErro
           overrides={overrides}
           capturedAt={weatherCapturedAt}
           refreshing={refreshing}
+          hasPosition={lat != null && lon != null}
           onEdit={onWeatherEdit}
           onRefresh={() => { if (lat != null && lon != null) void fetchWeatherFor(lat, lon, fromLocalInputValue(datetime)).catch(() => setOffline(true)); }}
         />

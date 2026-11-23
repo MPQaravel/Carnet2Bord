@@ -170,14 +170,11 @@ export function nowNaiveISO(): string {
   return fromLocalInputValue(toLocalInputValue(new Date()));
 }
 
-/** Stardate façon TNG. */
-export function stardate(d: Date): string {
-  const year = d.getFullYear();
-  const start = new Date(year, 0, 1);
-  const dayOfYear = Math.floor((d.getTime() - start.getTime()) / 86400000) + 1;
-  const hour = d.getHours() + d.getMinutes() / 60 + d.getSeconds() / 3600;
-  const sd = (year - 2323) * 1000 + ((dayOfYear - 1 + hour / 24) / 365.25) * 1000;
-  return sd.toFixed(2);
+/** Numéro de log : « LOG AAAAMMJJ HHMM » à partir de la date/heure du log (ISO naive). */
+export function logNumber(iso: string): string {
+  const d = parseNaive(iso);
+  if (!d) return "LOG —";
+  return `LOG ${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())} ${pad(d.getHours())}${pad(d.getMinutes())}`;
 }
 
 export function fmtDuration(hours?: number | null): string {

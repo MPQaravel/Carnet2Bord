@@ -8,7 +8,7 @@ import {
   Log, LogFilter, LogInput, Navigation, NavigationSummary, Photo, Settings,
   Weather, DEFAULT_SETTINGS,
 } from "./types";
-import { haversineNm, parseNaive, seaState, beaufortFromMs } from "./format";
+import { haversineNm, logNumber, parseNaive, seaState, beaufortFromMs } from "./format";
 
 export const isTauri = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
 
@@ -123,21 +123,22 @@ export function buildWeather(forecast: any, marine: any, targetISO: string): Wea
 export async function fetchWeatherHTTP(lat: number, lon: number, datetimeISO: string): Promise<Weather> {
   if (typeof navigator !== "undefined" && !navigator.onLine) throw new OfflineError();
   const target = parseNaive(datetimeISO)!;
+  let fr: unknown;
   try {
-    const [fr, mr] = await Promise.all([
-      fetch(forecastUrl(lat, lon, target)).then((r) => {
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        return r.json();
-      }),
-      fetch(marineUrl(lat, lon, target))
-        .then((r) => (r.ok ? r.json() : null))
-        .catch(() => null),
-    ]);
-    return buildWeather(fr, mr, datetimeISO);
+    const r = await fetch(forecastUrl(lat, lon, target));
+    if (!r.ok) throw new Error(`Open-Meteo : HTTP ${r.status}`);
+    fr = await r.json();
   } catch (e) {
-    if (e instanceof OfflineError) throw e;
+    // échec réseau / CORS -> vraiment hors ligne ; HTTP -> erreur explicite
+    if (e instanceof Error && e.message.startsWith("Open-Meteo")) throw e;
     throw new OfflineError();
   }
+  let mr: unknown = null;
+  try {
+    const r = await fetch(marineUrl(lat, lon, target));
+    if (r.ok) mr = await r.json();
+  } catch { /* la houle est optionnelle */ }
+  return buildWeather(fr as any, mr as any, datetimeISO);
 }
 
 // ---------- Récapitulatifs de navigation (miroir du noyau) ----------
@@ -313,7 +314,7 @@ class BrowserBackend implements Backend {
     const log: Log = {
       id,
       log_datetime: input.log_datetime,
-      stardate: settings.stardate === "1" ? undefined : null, // calculé à l'affichage si activé
+      stardate: settings.stardate === "1" ? logNumber(input.log_datetime) : null,
       vessel: input.vessel, departure: input.departure, destination: input.destination,
       heading_deg: input.heading_deg ?? null, speed_kn: input.speed_kn ?? null,
       sails: input.sails, crew: input.crew,

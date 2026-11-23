@@ -12,6 +12,7 @@ interface Props {
   overrides: Set<string>;
   capturedAt?: string | null;
   refreshing: boolean;
+  hasPosition: boolean;
   onEdit(block: string, patch: Partial<Weather>): void;
   onRefresh(): void;
 }
@@ -20,7 +21,7 @@ function num(v?: number | null): string {
   return v == null ? "—" : String(Math.round(v * 100) / 100);
 }
 
-export function WeatherPanel({ weather, source, offline, overrides, capturedAt, refreshing, onEdit, onRefresh }: Props) {
+export function WeatherPanel({ weather, source, offline, overrides, capturedAt, refreshing, hasPosition, onEdit, onRefresh }: Props) {
   const [editing, setEditing] = useState<string | null>(null);
   const w = weather;
   const empty = !w || (w.wind_speed_ms == null && w.wmo_code == null && w.wave_height_m == null && w.temp_air_c == null);
@@ -152,7 +153,12 @@ export function WeatherPanel({ weather, source, offline, overrides, capturedAt, 
           )}
         </div>
       </div>
-      {empty && <p className="small" style={{ color: "var(--amber)", marginTop: "0.5rem" }}>Aucune donnée météo disponible — saisie manuelle requise (hors ligne ?).</p>}
+      {empty && !hasPosition && (
+        <p className="small" style={{ color: "var(--amber)", marginTop: "0.5rem" }}>
+          Aucune position connue : cliquez sur 📍 (GPS) ou saisissez une position ci-dessous pour activer la météo automatique Open-Meteo.
+        </p>
+      )}
+      {empty && hasPosition && <p className="small" style={{ color: "var(--amber)", marginTop: "0.5rem" }}>Aucune donnée météo disponible — saisie manuelle requise (hors ligne ? « ↻ Rafraîchir la météo » pour réessayer).</p>}
     </div>
   );
 }

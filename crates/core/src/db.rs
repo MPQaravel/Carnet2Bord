@@ -129,7 +129,7 @@ impl Store {
         let now = now_local();
         let id = input.id.clone().unwrap_or_else(new_id);
         let stardate = if use_stardate {
-            Some(crate::models::stardate(&chrono::Local::now()))
+            Some(crate::models::log_number(&input.log_datetime))
         } else {
             None
         };

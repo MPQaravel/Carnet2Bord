@@ -96,7 +96,7 @@ export function SettingsView({ backend, onToast, onError, onDataChanged }: Props
         <div className="settings-grid">
           <label className="toggle">
             <input type="checkbox" checked={s.stardate === "1"} onChange={(e) => void update("stardate", e.target.checked ? "1" : "0")} />
-            Numérotation stardate des entrées
+            Numérotation des logs « LOG AAAAMMJJ HHMM »
           </label>
           <div className="field">
             <label htmlFor="s-theme">Thème</label>
